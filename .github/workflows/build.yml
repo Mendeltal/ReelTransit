@@ -1,0 +1,22 @@
+name: Build Reel Transit
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get JUCE
+        run: git clone --depth 1 --branch 8.0.6 https://github.com/juce-framework/JUCE.git JUCE
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release "-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64"
+      - name: Build
+        run: cmake --build build --config Release --target ReelTransit_VST3 ReelTransit_AU -j 4
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ReelTransit-macOS
+          path: |
+            build/ReelTransit_artefacts/Release/VST3
+            build/ReelTransit_artefacts/Release/AU
